@@ -1,0 +1,11 @@
+{
+  "componentFolder": "src/components",
+  "experimentalComponentTesting": true,
+  "fixturesFolder": "cypress/fixtures",
+  "ignoreTestFiles": "cypress/integration/examples/*.spec.js",
+  "integrationFolder": "cypress/integration",
+  "nodeVersion": "system",
+  "pluginsFile": "cypress/plugins/index.js",
+  "supportFile": "cypress/support/index.js",
+  "testFiles": "**/*.test.js"
+}

@@ -1,0 +1,34 @@
+image: docker:latest
+
+variables:
+  REPOSITORY_URL: 2137.dkr.ecr.some-region-1.amazonaws.com
+  REPOSITORY_URL_TAGGED: 2137.dkr.ecr.some-region-1.amazonaws.com/some-project:latest
+  CLUSTER_NAME: some-cluester
+  SERVICE_NAME_INSIDE_CLUSTER: some-service
+  REGION: some-region-1
+
+services:
+  - docker:18.09.7-dind
+
+before_script:
+  - docker info
+  - apk add --update --no-cache build-base jq python3-dev python3 libffi-dev libressl-dev bash git gettext curl
+  - curl -O https://bootstrap.pypa.io/get-pip.py
+  - python3 get-pip.py
+  - pip install --upgrade six awscli awsebcli
+  - pip install awscli
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URL
+    - docker build --no-cache -t $REPOSITORY_URL_TAGGED .
+    - docker push $REPOSITORY_URL_TAGGED
+    - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME_INSIDE_CLUSTER --region $REGION --force-new-deployment
+  only:
+    - master
+  tags:
+    - docker
